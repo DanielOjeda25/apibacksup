@@ -26,7 +26,7 @@ app.use(idClientes);
 app.use(indexRoute);
 app.use(gondolasRoute);
 app.listen(8080)
-console.log("server on port https://bmn-deliverydron.com");
+console.log("server on port http://localhost:8080");
 // Servir archivo index.html
 app.use(express.static(path.join(__dirname, "dist")));
 app.get("/", (req, res) => {

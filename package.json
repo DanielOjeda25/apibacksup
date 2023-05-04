@@ -6,8 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "dev": "nodemon ./src/app.js --exec babel-node",
-    "build": "set NODE_ENV=production && babel ./src/app.js -d dist && npm run copy-files",
-    "copy-files": "cp -r public dist",
+    "build": "set NODE_ENV=production&& babel src -d dist",
     "start": "node dist/app.js"
   },
   "keywords": [],

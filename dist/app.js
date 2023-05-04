@@ -31,7 +31,7 @@ app.use(_idClientesRoutes["default"]);
 app.use(_indexRoutes["default"]);
 app.use(_gondolasRoutes["default"]);
 app.listen(8080);
-console.log("server on port https://bmn-deliverydron.com");
+console.log("server on port http://localhost:8080");
 // Servir archivo index.html
 app.use(_express["default"]["static"](_path["default"].join(__dirname, "dist")));
 app.get("/", function (req, res) {

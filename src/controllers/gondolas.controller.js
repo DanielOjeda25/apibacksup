@@ -1,67 +1,58 @@
-/* import sql from "mssql/msnodesqlv8.js";
-import dbConfig from "../database/myLocalDB/localConfig.js";
-
-const queryDB = (rubro, nombre, imagen) => {
-	return `INSERT INTO supervisor.dbo.gondolasTest ([rubro],[nombre],[imagen]) 
-		VALUES ('${rubro}', '${nombre}', '${imagen}')`;
-};
-
-export const POSTGondola = async (req, res) => {
-	try {
-		const pool = await sql.connect(dbConfig);
-		const query = queryDB(
-			req.body["rubro"],
-			req.body["nombre"],
-			req.body["imagen"],
-		);
-		await pool.request().query(query);
-		res.status(200).send("Góndola agregada correctamente.");
-	} catch (err) {
-		console.log(err);
-		res.status(500).send("Error al agregar la góndola.");
-	}
-};
- */
-
 const mysql = require('mysql');
 
-const connection = mysql.createConnection({
-	host: '149.100.155.1',
-	user: 'u698067364_admin',
-	password: 'Adminrootsupervisor1',
-	database: 'u698067364_appsup',
-	connectTimeout: 10000 // 10 segundos
+const pool = mysql.createPool({
+  connectionLimit: 10,
+  host: process.env.HOST,
+  user: process.env.USER_MYSQL,
+  password: process.env.PASSWORD_MYSQL,
+  database: process.env.DATABASE_MYSQL,
+  connectTimeout: 10000 // 10 segundos
 });
 
 export const GetGondolas = (req, res) => {
-	connection.connect();
-	connection.query('SELECT * FROM `Gondolas` ORDER BY `cliente` ASC', (error, results) => {
-		if (error) {
-			console.error(error);
-			res.status(500).send('Error al obtener las góndolas.');
-		} else {
-			res.json(results);
-			console.log('Datos obtenidos');
-		}
-		connection.end();
-	});
-};
-const queryDB = (rubro, cliente, imagen) => {
-	return `INSERT INTO Gondolas (cliente ,rubro, imagen) VALUES ('${cliente}', '${rubro}', '${imagen}')`;
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Error al obtener las góndolas.');
+      return;
+    }
+
+    connection.query('SELECT * FROM `Gondolas` ORDER BY `cliente` ASC', (error, results) => {
+      connection.release();
+      if (error) {
+        console.error(error);
+        res.status(500).send('Error al obtener las góndolas.');
+      } else {
+        res.json(results);
+        console.log('Datos obtenidos');
+      }
+    });
+  });
 };
 
 export const POSTGondola = async (req, res) => {
-	connection.connect();
-	connection.query(queryDB(req.body["cliente"],
-		req.body["rubro"],
-		req.body["imagen"],), (error, results) => {
-			if (error) {
-				console.error(error);
-				res.status(500).send('Error al obtener las góndolas.');
-			} else {
-				res.json(results[0]);
-				console.log('post agregado');
-			}
-		});
-		connection.end();
-}
+  pool.getConnection(function (err, connection) {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Error al obtener las góndolas.');
+      return;
+    }
+
+    const query = queryDB(req.body["cliente"], req.body["rubro"], req.body["imagen"]);
+
+    connection.query(query, (error, results) => {
+      connection.release();
+      if (error) {
+        console.error(error);
+        res.status(500).send('Error al agregar la góndola.');
+      } else {
+        res.json(results[0]);
+        console.log('post agregado');
+      }
+    });
+  });
+};
+
+const queryDB = (rubro, cliente, imagen) => {
+  return `INSERT INTO Gondolas (cliente ,rubro, imagen) VALUES ('${cliente}', '${rubro}', '${imagen}')`;
+};
